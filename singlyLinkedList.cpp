@@ -18,7 +18,6 @@ class LinkedList
 public:
     Node *head;
 
-    // public:
     LinkedList()
     {
         head = NULL;
@@ -133,7 +132,7 @@ public:
         Node *fastPtr = head;
         Node *prevSlowPtr = NULL;
         ;
-        while (fastPtr && fastPtr->next) // 1 2 3 4 5           1 2 3 4
+        while (fastPtr && fastPtr->next)
         {
             prevSlowPtr = slowPtr;
             slowPtr = slowPtr->next;
