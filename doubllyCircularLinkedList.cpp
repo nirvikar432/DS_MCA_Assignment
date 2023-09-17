@@ -4,32 +4,38 @@ using namespace std;
 class Node
 {
 public:
+    Node *prev;
     int val;
     Node *next;
+
     Node(int data)
     {
+        prev = NULL;
         val = data;
         next = NULL;
     }
 };
 
-class CLinkedList
+class CDLinkedList
 {
 public:
     Node *head;
-    CLinkedList()
+
+    CDLinkedList()
     {
         head = NULL;
     }
+
     // INSERT
 
     void insertAtHead(int val)
     {
-        Node *newNode = new Node(val);
+        Node *new_node = new Node(val);
         if (head == NULL)
         {
-            head = newNode;
-            newNode->next = head;
+            head = new_node;
+            head->next = head;
+            head->prev = head;
             return;
         }
         Node *tail = head;
@@ -37,21 +43,27 @@ public:
         {
             tail = tail->next;
         }
-        tail->next = newNode;
-        newNode->next = head;
-        head = newNode;
+
+        tail->next = new_node;
+        new_node->prev = tail;
+        new_node->next = head;
+        head->prev = new_node;
+        head = new_node;
+
         return;
     }
 
     void insertAtMiddle(int val)
     {
-        Node *newNode = new Node(val);
+        Node *new_node = new Node(val);
         if (head == NULL)
         {
-            head = newNode;
-            newNode->next = head;
+            head = new_node;
+            head->next = head;
+            head->prev = head;
             return;
         }
+
         Node *slowPtr = head;
         Node *fastPtr = head;
         while (fastPtr->next != head && fastPtr->next->next != head)
@@ -59,14 +71,15 @@ public:
             fastPtr = fastPtr->next->next;
             slowPtr = slowPtr->next;
         }
-        newNode->next = slowPtr->next;
-        slowPtr->next = newNode;
+        new_node->next = slowPtr->next;
+        new_node->next->prev = new_node;
+        slowPtr->next = new_node;
+        new_node->prev = slowPtr;
         return;
     }
 
     void insertAtPos(int val, int pos)
     {
-        Node *newNode = new Node(val);
         if (pos == 0)
         {
             insertAtHead(val);
@@ -74,35 +87,41 @@ public:
         }
         Node *temp = head;
         int counter = 0;
+        Node *new_node = new Node(val);
+
         while (counter != pos - 1)
         {
-            temp = temp->next;
             counter++;
+            temp = temp->next;
         }
-        newNode->next = temp->next;
-        temp->next = newNode;
-        return;
+        new_node->next = temp->next;
+        temp->next = new_node;
+        new_node->next->prev = new_node;
+        new_node->prev = temp;
     }
 
     void insertAtEnd(int val)
     {
-        Node *newNode = new Node(val);
+        Node *new_node = new Node(val);
         if (head == NULL)
         {
-            head = newNode;
-            newNode->next = head;
+            head = new_node;
+            head->next = head;
+            head->prev = head;
             return;
         }
+
         Node *tail = head;
         while (tail->next != head)
         {
             tail = tail->next;
         }
-        newNode->next = tail->next;
-        tail->next = newNode;
+        tail->next = new_node;
+        new_node->next = head;
+        new_node->prev = tail;
+        head->prev = new_node;
         return;
     }
-
     // END OF INSERT
 
     // DELETE
@@ -111,24 +130,23 @@ public:
     {
         if (head == NULL)
         {
-            return;
+            cout << "List is empty";
         }
-        if (head->next == head)
+        if (head->next == NULL)
         {
             free(head);
             head = NULL;
-            cout << "No element";
             return;
         }
-
         Node *tail = head;
+        Node *temp = head;
         while (tail->next != head)
         {
             tail = tail->next;
         }
-        Node *temp = head;
+        tail->next = head->next;
+        head->next->prev = tail;
         head = head->next;
-        tail->next = head;
         free(temp);
         return;
     }
@@ -137,13 +155,12 @@ public:
     {
         if (head == NULL)
         {
-            return;
+            cout << "List Empty";
         }
         if (head->next == head)
         {
             free(head);
             head = NULL;
-            cout << "No element";
             return;
         }
         Node *slowPtr = head;
@@ -157,36 +174,37 @@ public:
         } while (fastPtr != head && fastPtr->next != head);
 
         prevSlowPtr->next = slowPtr->next;
+        prevSlowPtr->next->prev = prevSlowPtr;
         free(slowPtr);
         return;
     }
 
     void deleteAtPos(int pos)
     {
-        if (head == NULL)
-        {
-            cout << "list is empty";
-        }
-        if (pos == 0)
-        {
-            deleteAtHead();
-            return;
-        }
-        Node *temp = head;
         if (pos > 0)
         {
-            int icounter = 0;
-            while (icounter != pos - 1 && temp->next != head)
+            if (pos == 1)
             {
-                icounter++;
+                deleteAtHead();
+                return;
+            }
+            Node *temp = head;
+            int counter = 1;
+            while (counter != pos - 1)
+            {
+                counter++;
                 temp = temp->next;
             }
-            if (temp->next != head)
-            {
-                Node *delNode = temp->next;
-                temp->next = temp->next->next;
-                free(delNode);
-            }
+            Node *dNode = temp->next;
+            temp->next = temp->next->next;
+            temp->next->prev = temp;
+            free(dNode);
+            return;
+        }
+        else
+        {
+            cout << "Wrong Pos<<endl";
+            return;
         }
     }
 
@@ -199,56 +217,56 @@ public:
         if (head->next == head)
         {
             free(head);
-            cout << "No element";
+            cout << "empty";
             head = NULL;
-
             return;
         }
-        Node *temp = head;
-        while (temp->next->next != head)
+        Node *tail = head;
+        while (tail->next != head)
         {
-            temp = temp->next;
+            tail = tail->next;
         }
-        Node *dNode = temp->next;
-        temp->next = head;
+        Node *dNode = tail;
+        tail->prev->next = head;
+        head->prev = tail->prev;
         free(dNode);
         return;
     }
 
+    // END OF DELETE
+
     void display()
     {
-        if (head == NULL)
-        {
-            return;
-        }
         Node *temp = head;
         do
         {
-            cout << temp->val << "->";
+            cout << temp->val << "<->";
             temp = temp->next;
         } while (temp != head);
+
         cout << endl;
     }
 };
 
 int main()
 {
-    CLinkedList cll1;
-    cll1.insertAtHead(6);
-    cll1.insertAtHead(5);
-    cll1.insertAtHead(4);
-    cll1.insertAtHead(3);
-    cll1.insertAtHead(2);
-    cll1.insertAtHead(1);
-    cll1.display();
-    // cll1.insertAtMiddle(100);
-    // cll1.insertAtPos(100, 6);
-    // cll1.insertAtEnd(100);
-    // cll1.deleteAtEnd();
-    // cll1.deleteAtHead();
-    // cll1.deleteAtMiddle();
-    cll1.deleteAtPos(5);
-    cll1.display();
+    CDLinkedList dll1;
+    dll1.insertAtHead(6);
+    dll1.insertAtHead(5);
+    dll1.insertAtHead(4);
+    dll1.insertAtHead(3);
+    dll1.insertAtHead(2);
+    dll1.insertAtHead(1);
+    dll1.display();
+    cout << endl;
+    // dll1.insertAtMiddle(100);
+    // dll1.insertAtPos(100, 1);
+    // dll1.insertAtEnd(7);
+    // dll1.deleteAtHead();
+    // dll1.deleteAtMiddle();
+    // dll1.deleteAtPos(3);
+    dll1.deleteAtEnd();
+    dll1.display();
 
     return 0;
 }
