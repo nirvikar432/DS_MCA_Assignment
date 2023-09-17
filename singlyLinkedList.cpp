@@ -131,7 +131,7 @@ public:
         Node *slowPtr = head;
         Node *fastPtr = head;
         Node *prevSlowPtr = NULL;
-        ;
+
         while (fastPtr && fastPtr->next)
         {
             prevSlowPtr = slowPtr;
